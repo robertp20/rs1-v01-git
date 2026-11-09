@@ -14,8 +14,19 @@ namespace WebApplication1.Controllers
         [HttpGet]
         public async Task<List<StudentResponse>> GetAll(CancellationToken ct)
         {
-            List<Student> students = await db.Studenti.ToListAsync(ct);
-            return students.Select(Mapiraj).ToList();
+            //List<Student> students = await db.Studenti.ToListAsync(ct);
+            //return students.Select(Mapiraj).ToList();
+
+            IQueryable<Student> upit = db.Studenti;
+
+            return await upit.OrderBy(x => x.Prezime).ThenBy(x => x.Ime).Select(x => new StudentResponse()
+            {
+                Id = x.Id,
+                ImePrezime = x.Ime + " " + x.Prezime,
+                BrojIndeksa = x.BrojIndeksa,
+                DatumRodjenja = x.DatumRodjenja,
+                Smjer = x.Smjer != null ? x.Smjer.Naziv : null
+            }).ToListAsync();
         }
 
         private static StudentResponse Mapiraj(Student s)
@@ -27,6 +38,30 @@ namespace WebApplication1.Controllers
                 BrojIndeksa = s.BrojIndeksa,
                 DatumRodjenja = s.DatumRodjenja,
             };
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<StudentResponse>> GetById(int id, CancellationToken ct)
+        {
+            Student? student = await db.Studenti.FirstOrDefaultAsync(x => x.Id == id, ct);
+            if (student == null)
+                return NotFound();
+            return Ok(Mapiraj(student));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<StudentResponse>> Dodaj(StudentDodajRequest request, CancellationToken ct)
+        {
+            Student student = new Student()
+            {
+                Ime = request.Ime,
+                Prezime = request.Prezime,
+                BrojIndeksa = request.BrojIndeksa,
+                DatumKreiranja = DateTime.Now
+            };
+            db.Studenti.Add(student);
+            await db.SaveChangesAsync(ct);
+            return Ok(Mapiraj(student));
         }
     }
 }

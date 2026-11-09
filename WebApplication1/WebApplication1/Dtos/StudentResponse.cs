@@ -7,5 +7,7 @@
         public string ImePrezime { get; set; }
         public string BrojIndeksa { get; set; }
         public DateOnly? DatumRodjenja { get; set; }
+
+        public string? Smjer { get; set; }
     }
 }
