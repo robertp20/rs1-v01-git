@@ -8,6 +8,8 @@ namespace WebApplication1.Data
     {
         public DbSet<Student> Studenti => Set<Student>();
 
+        public DbSet<Smjer> Smjer => Set<Smjer>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -32,6 +34,26 @@ namespace WebApplication1.Data
                      DatumKreiranja = new DateTime(2026, 10, 28)
                  }
 
+                );
+
+            modelBuilder.Entity<Student>()
+                .HasOne(s => s.Smjer)
+                .WithMany(sm => sm.Studenti)
+                .HasForeignKey(s => s.SmjerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Smjer>().HasData(
+
+                new Smjer
+                {
+                    Id = 1,
+                    Naziv = "Softverski inzenjering"
+                },
+                new Smjer
+                {
+                    Id = 2,
+                    Naziv = "Razvoj softvera"
+                }
                 );
         }
     }
