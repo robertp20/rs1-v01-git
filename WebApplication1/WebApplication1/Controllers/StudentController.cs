@@ -63,5 +63,30 @@ namespace WebApplication1.Controllers
             await db.SaveChangesAsync(ct);
             return Ok(Mapiraj(student));
         }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<StudentResponse>> Update(int id, StudentUpdateRequest request, CancellationToken ct)
+        {
+            Student? student = await db.Studenti.FirstOrDefaultAsync(x => x.Equals(id), ct);
+            if (student == null) { return NotFound(); }
+            student.Ime = request.Ime;
+            student.Prezime = request.Prezime;
+            student.BrojIndeksa = request.BrojIndeksa;
+            student.DatumRodjenja = request?.DatumRodjenja;
+            student.SmjerId = request?.SmjerId;
+
+            await db.SaveChangesAsync(ct);
+            return Ok(Mapiraj(student));
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id, CancellationToken ct)
+        {
+            Student? student = await db.Studenti.FirstOrDefaultAsync(x => x.Equals(id), ct);
+            if (student == null) { return NotFound(); }
+            db.Studenti.Remove(student);
+            await db.SaveChangesAsync(ct);
+            return NoContent();
+        }
     }
 }
